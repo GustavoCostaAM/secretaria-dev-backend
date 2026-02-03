@@ -21,5 +21,5 @@ public class Subject {
 
     @OneToOne
     @JoinColumn(name = "teacher_id")
-    private Teacher teacherId;
+    private Teacher teacher;
 }
