@@ -13,12 +13,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class CreateUserService {
+public class RegisterUserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public User register(UserRegistrationDTO dto) {
+    public User execute(UserRegistrationDTO dto) {
         if (userRepository.existsByEmail(dto.email())) {
             throw new RuntimeException("Email already in use");
         }
