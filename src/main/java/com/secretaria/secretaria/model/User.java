@@ -38,4 +38,6 @@ public abstract class User {
     public boolean isStudent() {
         return UserRole.STUDENT.equals(this.role);
     }
+
+    public boolean isAdm(){return UserRole.ADM.equals(this.role);}
 }

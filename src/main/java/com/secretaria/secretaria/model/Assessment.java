@@ -1,10 +1,10 @@
 package com.secretaria.secretaria.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "assessments")
@@ -12,6 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Assessment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +25,14 @@ public class Assessment {
     @ManyToOne
     @JoinColumn(name = "student_id")
     public Student student;
+
+    @NotNull(message = "Grade must not be null")
+    @Column(nullable = false)
+    private Double grade;
+
+    @NotNull
+    @Column(nullable = false)
+    private LocalDate date;
 
     @Column
     private String observations;
