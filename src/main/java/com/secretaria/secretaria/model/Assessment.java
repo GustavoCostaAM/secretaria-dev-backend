@@ -2,10 +2,9 @@ package com.secretaria.secretaria.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "assessments")
@@ -13,6 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Assessment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,10 +26,14 @@ public class Assessment {
     @JoinColumn(name = "student_id")
     public Student student;
 
-    @Column
-    private String observations;
-
     @NotNull(message = "Grade must not be null")
     @Column(nullable = false)
-    private Integer grade;
+    private Double grade;
+
+    @NotNull
+    @Column(nullable = false)
+    private LocalDate date;
+
+    @Column
+    private String observations;
 }
