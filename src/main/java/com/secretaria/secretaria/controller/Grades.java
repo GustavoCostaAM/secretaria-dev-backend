@@ -1,17 +1,22 @@
 package com.secretaria.secretaria.controller;
 
 import com.secretaria.secretaria.dto.grades.SendGradesDTO;
+import com.secretaria.secretaria.dto.grades.SendGradesResponseDTO;
 import com.secretaria.secretaria.model.Assessment;
 import com.secretaria.secretaria.service.grades.GradesService;
 import jakarta.persistence.PersistenceException;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller(value = "api/grades")
+@RestController()
+@RequestMapping("/api/grades")
 public class Grades {
     private final GradesService gradesService;
 
@@ -24,6 +29,7 @@ public class Grades {
         Assessment generated = null;
         String messageError = "";
         int status = 201;
+        SendGradesResponseDTO response;
 
         //error validations
         try {
@@ -64,7 +70,15 @@ public class Grades {
             return ResponseEntity.status(status).body(messageError);
         }
 
+        response = SendGradesResponseDTO.builder()
+                .grade(generated.getGrade())
+                .date(generated.getDate())
+                .observation(generated.getObservations())
+                .studentName(generated.student.getName())
+                .subjectName(generated.subject.getName())
+                .build();
+
         //from here the assessment have been created successfully
-        return ResponseEntity.status(status).body(generated);
+        return ResponseEntity.status(status).body(response);
     }
 }
