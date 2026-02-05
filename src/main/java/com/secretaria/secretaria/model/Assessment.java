@@ -18,11 +18,11 @@ public class Assessment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "subject_id")
     public Subject subject;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "student_id")
     public Student student;
 
@@ -36,4 +36,8 @@ public class Assessment {
 
     @Column
     private String observations;
+
+    @NotNull(message = "Grade must not be null")
+    @Column(nullable = false)
+    private Integer grade;
 }
