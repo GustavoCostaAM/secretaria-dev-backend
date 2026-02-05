@@ -36,8 +36,4 @@ public class Assessment {
 
     @Column
     private String observations;
-
-    @NotNull(message = "Grade must not be null")
-    @Column(nullable = false)
-    private Integer grade;
 }
