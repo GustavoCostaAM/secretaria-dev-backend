@@ -1,6 +1,6 @@
 package com.secretaria.secretaria.service.subject;
 
-import com.secretaria.secretaria.dto.SubjectCreationDTO;
+import com.secretaria.secretaria.dto.subject.SubjectCreationDTO;
 import com.secretaria.secretaria.model.Subject;
 import com.secretaria.secretaria.model.Teacher;
 import com.secretaria.secretaria.repository.SubjectRepository;

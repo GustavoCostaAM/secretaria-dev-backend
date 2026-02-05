@@ -1,4 +1,4 @@
-package com.secretaria.secretaria.dto;
+package com.secretaria.secretaria.dto.subject;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

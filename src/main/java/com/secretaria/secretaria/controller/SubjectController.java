@@ -1,7 +1,7 @@
 package com.secretaria.secretaria.controller;
 
-import com.secretaria.secretaria.dto.SubjectCreationDTO;
-import com.secretaria.secretaria.dto.SubjectResponseDTO;
+import com.secretaria.secretaria.dto.subject.SubjectCreationDTO;
+import com.secretaria.secretaria.dto.subject.SubjectResponseDTO;
 import com.secretaria.secretaria.model.Subject;
 import com.secretaria.secretaria.service.subject.CreateSubjectService;
 import jakarta.validation.Valid;

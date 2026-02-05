@@ -1,4 +1,4 @@
-package com.secretaria.secretaria.dto;
+package com.secretaria.secretaria.dto.user;
 
 import com.secretaria.secretaria.model.UserRole;
 import jakarta.validation.constraints.Email;
