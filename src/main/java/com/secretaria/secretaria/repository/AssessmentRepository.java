@@ -13,4 +13,7 @@ public interface AssessmentRepository extends JpaRepository<Assessment, Integer>
 
     //loads all the assessments that is after the parameter
     List<Assessment> findAllByDateAfter(@NotNull LocalDate dateAfter);
+
+    //loads all the assessments by the id
+    Assessment findAssessmentById(Long id);
 }

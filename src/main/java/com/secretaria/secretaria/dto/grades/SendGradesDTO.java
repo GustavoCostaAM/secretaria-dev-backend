@@ -6,6 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class SendGradesDTO {
+    private final Long assessmentId;
     private final Double grade;
     private final Integer studentId;
     private final Integer teacherId;
