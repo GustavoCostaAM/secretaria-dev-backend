@@ -1,6 +1,6 @@
 package com.secretaria.secretaria.service.user;
 
-import com.secretaria.secretaria.dto.UserRegistrationDTO;
+import com.secretaria.secretaria.dto.user.UserRegistrationDTO;
 import com.secretaria.secretaria.model.Student;
 import com.secretaria.secretaria.model.Teacher;
 import com.secretaria.secretaria.model.User;
