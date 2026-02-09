@@ -1,5 +1,6 @@
 package com.secretaria.secretaria.config;
 
+import com.secretaria.secretaria.model.User;
 import com.secretaria.secretaria.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +22,16 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(UserRepository userRepository) {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return username -> {
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            if (!user.isActive()) {
+                throw new RuntimeException("This account has been deactivated");
+            }
+
+            return user;
+        };
     }
 
     @Bean
