@@ -34,7 +34,8 @@ public class AuthService {
                 user.getName(),
                 user.getUsername(),
                 user.getRole(),
-                token
+                token,
+                user.isActive()
         );
     }
 }

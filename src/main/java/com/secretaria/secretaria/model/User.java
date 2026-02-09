@@ -49,6 +49,10 @@ public abstract class User implements UserDetails {
     @Column(name = "role", nullable = false, insertable = false, updatable = false)
     private UserRole role;
 
+    @NotNull(message = "Is active must not be null")
+    @Column(nullable = false)
+    private boolean active = true;
+
     public boolean isTeacher() {
         return UserRole.TEACHER.equals(this.role);
     }
