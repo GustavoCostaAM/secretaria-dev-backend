@@ -11,16 +11,14 @@ import com.secretaria.secretaria.repository.SubjectRepository;
 import com.secretaria.secretaria.repository.TeacherRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-
 @Service
-public class UpdateGradesService {
+public class DeleteGradesService {
     private final AssessmentRepository assessmentRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final SubjectRepository subjectRepository;
 
-    public UpdateGradesService(AssessmentRepository assessmentRepository, StudentRepository studentRepository,
+    public DeleteGradesService(AssessmentRepository assessmentRepository, StudentRepository studentRepository,
                                TeacherRepository teacherRepository, SubjectRepository subjectRepository) {
         this.assessmentRepository = assessmentRepository;
         this.studentRepository = studentRepository;
@@ -28,55 +26,42 @@ public class UpdateGradesService {
         this.subjectRepository = subjectRepository;
     }
 
-    public Assessment UpdateAssesment(SendGradesDTO gradesDTO){
+    public boolean DeleteAssesment(SendGradesDTO gradesDTO){
         //first we check if the student is registered
         Student student = getUser(gradesDTO.getStudentId().longValue());
         if (student == null){
-            return null;
+            return false;
         }
 
         //then we check if the teacher is registered
         Teacher teacher = getTeacher(gradesDTO.getTeacherId());
         if (teacher == null){
-            return null;
+            return false;
         }
 
         //from here, the teacher and the students are ok
-        //then we check if the Assessment exists
-        Assessment fetched = assessmentRepository.findAssessmentById(gradesDTO.getAssessmentId().longValue());
-        if (fetched == null){
-            return null;
+        //now we have to load the teacher's subject
+        Subject subject = getSubject(gradesDTO.getSubjectId(), gradesDTO.getTeacherId());
+        if(subject == null){
+            return false;
         }
 
-        //filling the assessment fields
+        //now we fetch the assessment and validate the infos
+        Assessment assessment = getAssessment(gradesDTO.getAssessmentId());
 
-        if (!fetched.getGrade().equals(gradesDTO.getGrade())){
-            fetched.setGrade(gradesDTO.getGrade());
-        }
-        if (!fetched.getObservations().equals(gradesDTO.getObservations())){
-            fetched.setObservations(gradesDTO.getObservations());
-        }
-        if (!fetched.getSubject().getId().equals(gradesDTO.getSubjectId().longValue())){
-            //fetches the new subject
-            Subject newSubject = getSubject(gradesDTO.getSubjectId(), gradesDTO.getTeacherId());
-            if (newSubject == null){
-                return null;
-            }
-
-            fetched.setSubject(newSubject);
-        }
-        if (!fetched.getStudent().getId().equals(gradesDTO.getStudentId().longValue())){
-            //fetches the new student
-            Student newStudent = studentRepository.getStudentById(gradesDTO.getStudentId().longValue());
-            if (newStudent == null){
-                return null;
-            }
-
-            fetched.setStudent(newStudent);
+        if (assessment == null){
+            return false;
         }
 
-        //saving the new Assessemnt
-        return assessmentRepository.save(fetched);
+        if (gradesDTO.getStudentId().longValue() != assessment.getStudent().getId()){
+            return false;
+        }
+
+        if (gradesDTO.getTeacherId().longValue() != assessment.getSubject().getTeacher().getId()){
+            return false;
+        }
+
+        return true;
     }
 
     //privates methods
@@ -102,5 +87,9 @@ public class UpdateGradesService {
         //we can add any validation here
 
         return subject;
+    }
+
+    private Assessment getAssessment(Integer assessmentId){
+        return assessmentRepository.findAssessmentById(assessmentId.longValue());
     }
 }

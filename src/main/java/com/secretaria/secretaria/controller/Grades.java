@@ -3,8 +3,10 @@ package com.secretaria.secretaria.controller;
 import com.secretaria.secretaria.dto.grades.SendGradesDTO;
 import com.secretaria.secretaria.dto.grades.SendGradesResponseDTO;
 import com.secretaria.secretaria.model.Assessment;
+import com.secretaria.secretaria.service.grades.DeleteGradesService;
 import com.secretaria.secretaria.service.grades.SendGradesService;
 import com.secretaria.secretaria.service.grades.UpdateGradesService;
+import com.secretaria.secretaria.util.JSON;
 import jakarta.persistence.PersistenceException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,10 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class Grades {
     private final SendGradesService sendgradesService;
     private final UpdateGradesService updateGradesService;
+    private final DeleteGradesService deleteGradesService;
 
-    public Grades(SendGradesService sendgradesService, UpdateGradesService updateGradesService) {
+    public Grades(SendGradesService sendgradesService, UpdateGradesService updateGradesService, DeleteGradesService deleteGradesService) {
         this.sendgradesService = sendgradesService;
         this.updateGradesService = updateGradesService;
+        this.deleteGradesService = deleteGradesService;
     }
 
     @PostMapping("/sendGrades")
@@ -151,5 +155,58 @@ public class Grades {
                 .build();
 
         return ResponseEntity.status(status).body(response);
+    }
+
+    @PostMapping("/deleteGrades")
+    public ResponseEntity<?> deleteGrades(@RequestBody SendGradesDTO gradesDTO){
+        boolean deleted = false;
+        String messageError = "";
+        int status = 200;
+        JSON<String> response = new JSON<>();
+
+        try {
+            deleted = deleteGradesService.DeleteAssesment(gradesDTO);
+        }catch (DataIntegrityViolationException exception){
+            exception.printStackTrace();
+            messageError = "FAILED TO DELETE DATA BY DATA INTEGRITY";
+            status = 400;
+            System.out.println(messageError);
+
+        }catch (ConstraintViolationException exception){
+            exception.printStackTrace();
+            messageError = "FAILED TO DELETE DATA BY DATA VIOLATION";
+            status = 400;
+            System.out.println(messageError);
+
+        }catch (PersistenceException exception){
+            exception.printStackTrace();
+            messageError = "FAILED TO DELETE DATA BY PERSISTENCE ERROR";
+            status = 503;
+            System.out.println(messageError);
+
+        }catch (IllegalArgumentException exception){
+            exception.printStackTrace();
+            messageError = "FAILED TO DELETE DATA BY ARGUMENT EXCEPTION";
+            status = 400;
+            System.out.println(messageError);
+
+        }catch (Exception exception){
+            exception.printStackTrace();
+            messageError = "UNKNOWN ERROR";
+            status = 500;
+            System.out.println(messageError);
+        }
+
+        if (!deleted){
+            status = 400;
+            messageError = "REQUEST BODY IS INVALID OR ASSESSMENT NOT FOUND";
+            System.out.println(messageError);
+        }
+
+        if (status != 200){
+            response.addValue("error", messageError);
+        }
+
+        return ResponseEntity.status(status).body(response.map());
     }
 }
