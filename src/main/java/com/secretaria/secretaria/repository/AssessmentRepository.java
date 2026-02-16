@@ -16,4 +16,6 @@ public interface AssessmentRepository extends JpaRepository<Assessment, Integer>
 
     //loads all the assessments by the id
     Assessment findAssessmentById(Long id);
+
+    void deleteAssessmentById(Long id);
 }

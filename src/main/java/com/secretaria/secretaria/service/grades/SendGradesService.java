@@ -40,7 +40,11 @@ public class SendGradesService {
 
         //from here, the teacher and the students are ok
         //check if the subject exists
-        Subject subject = getSubject(gradesDTO.getSubjectId());
+        Subject subject = getSubject(gradesDTO.getSubjectId(), gradesDTO.getTeacherId());
+
+        if (subject == null){
+            return null;
+        }
 
         //Creating the assessment
         Assessment newAssessment = Assessment.builder()
@@ -71,8 +75,8 @@ public class SendGradesService {
         return teacher;
     }
 
-    private Subject getSubject(Integer subjectId){
-        Subject subject = subjectRepository.getSubjectsById(subjectId.longValue());
+    private Subject getSubject(Integer subjectId, Integer teacherId){
+        Subject subject = subjectRepository.findByIdAndTeacher_Id(subjectId.longValue(), teacherId.longValue());
 
         //we can add any validation here
 
