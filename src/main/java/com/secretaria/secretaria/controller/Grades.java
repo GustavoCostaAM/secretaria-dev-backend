@@ -3,6 +3,7 @@ package com.secretaria.secretaria.controller;
 import com.secretaria.secretaria.dto.grades.SendGradesDTO;
 import com.secretaria.secretaria.dto.grades.SendGradesResponseDTO;
 import com.secretaria.secretaria.model.Assessment;
+import com.secretaria.secretaria.model.Teacher;
 import com.secretaria.secretaria.service.grades.DeleteGradesService;
 import com.secretaria.secretaria.service.grades.SendGradesService;
 import com.secretaria.secretaria.service.grades.UpdateGradesService;
@@ -11,6 +12,7 @@ import jakarta.persistence.PersistenceException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,15 +32,16 @@ public class Grades {
     }
 
     @PostMapping("/sendGrades")
-    public ResponseEntity<?> InsertGrades(@RequestBody SendGradesDTO gradesDTO){
+    public ResponseEntity<?> InsertGrades(@RequestBody SendGradesDTO gradesDTO, Authentication authentication){
         Assessment generated = null;
         String messageError = "";
         int status = 201;
         SendGradesResponseDTO response;
+        Teacher teacher = (Teacher) authentication.getPrincipal();
 
         //error validations
         try {
-            generated = sendgradesService.AddAssesment(gradesDTO);
+            generated = sendgradesService.AddAssesment(gradesDTO, teacher);
 
         }catch (DataIntegrityViolationException exception){
             exception.printStackTrace();
@@ -94,15 +97,16 @@ public class Grades {
     }
 
     @PostMapping("/updateGrades")
-    public ResponseEntity<?> UpdateGrades(@RequestBody SendGradesDTO gradesDTO){
+    public ResponseEntity<?> UpdateGrades(@RequestBody SendGradesDTO gradesDTO, Authentication authentication){
         Assessment updated = null;
         String messageError = "";
         int status = 201;
         SendGradesResponseDTO response;
+        Teacher teacher = (Teacher) authentication.getPrincipal();
 
         //error validations
         try {
-            updated = updateGradesService.UpdateAssesment(gradesDTO);
+            updated = updateGradesService.UpdateAssesment(gradesDTO, teacher);
 
         }catch (DataIntegrityViolationException exception){
             exception.printStackTrace();
@@ -158,14 +162,15 @@ public class Grades {
     }
 
     @PostMapping("/deleteGrades")
-    public ResponseEntity<?> deleteGrades(@RequestBody SendGradesDTO gradesDTO){
+    public ResponseEntity<?> deleteGrades(@RequestBody SendGradesDTO gradesDTO, Authentication authentication){
         boolean deleted = false;
         String messageError = "";
         int status = 200;
         JSON<String> response = new JSON<>();
+        Teacher teacher = (Teacher) authentication.getPrincipal();
 
         try {
-            deleted = deleteGradesService.DeleteAssesment(gradesDTO);
+            deleted = deleteGradesService.DeleteAssesment(gradesDTO, teacher);
         }catch (DataIntegrityViolationException exception){
             exception.printStackTrace();
             messageError = "FAILED TO DELETE DATA BY DATA INTEGRITY";

@@ -25,20 +25,14 @@ public class SendGradesService {
         this.subjectRepository = subjectRepository;
     }
 
-    public Assessment AddAssesment(SendGradesDTO gradesDTO){
+    public Assessment AddAssesment(SendGradesDTO gradesDTO, Teacher teacher){
         //first we check if the student is registred
         Student student = getUser(gradesDTO.getStudentId().longValue());
         if (student == null){
             return null;
         }
 
-        //then we check if the teacher is registred
-        Teacher teacher = getTeacher(gradesDTO.getTeacherId());
-        if (teacher == null){
-            return null;
-        }
-
-        //from here, the teacher and the students are ok
+        //remember: the teacher is already validated by the filterchain
         //check if the subject exists
         Subject subject = getSubject(gradesDTO.getSubjectId(), gradesDTO.getTeacherId());
 

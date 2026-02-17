@@ -28,20 +28,14 @@ public class UpdateGradesService {
         this.subjectRepository = subjectRepository;
     }
 
-    public Assessment UpdateAssesment(SendGradesDTO gradesDTO){
+    public Assessment UpdateAssesment(SendGradesDTO gradesDTO, Teacher teacher){
         //first we check if the student is registered
         Student student = getUser(gradesDTO.getStudentId().longValue());
         if (student == null){
             return null;
         }
 
-        //then we check if the teacher is registered
-        Teacher teacher = getTeacher(gradesDTO.getTeacherId());
-        if (teacher == null){
-            return null;
-        }
-
-        //from here, the teacher and the students are ok
+        //remember: the teacher is already validated on filterchain
         //then we check if the Assessment exists
         Assessment fetched = assessmentRepository.findAssessmentById(gradesDTO.getAssessmentId().longValue());
         if (fetched == null){
