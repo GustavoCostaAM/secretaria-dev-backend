@@ -6,21 +6,19 @@ import com.secretaria.secretaria.repository.AssessmentRepository;
 import com.secretaria.secretaria.repository.StudentRepository;
 import com.secretaria.secretaria.repository.SubjectRepository;
 import com.secretaria.secretaria.repository.TeacherRepository;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
 @Service
-public class GradesService {
+public class SendGradesService {
     private final AssessmentRepository assessmentRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final SubjectRepository subjectRepository;
 
-    public GradesService(AssessmentRepository assessmentRepository, StudentRepository studentRepository,
-                         TeacherRepository teacherRepository, SubjectRepository subjectRepository) {
+    public SendGradesService(AssessmentRepository assessmentRepository, StudentRepository studentRepository,
+                             TeacherRepository teacherRepository, SubjectRepository subjectRepository) {
         this.assessmentRepository = assessmentRepository;
         this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
@@ -42,7 +40,11 @@ public class GradesService {
 
         //from here, the teacher and the students are ok
         //check if the subject exists
-        Subject subject = getSubject(gradesDTO.getSubjectId());
+        Subject subject = getSubject(gradesDTO.getSubjectId(), gradesDTO.getTeacherId());
+
+        if (subject == null){
+            return null;
+        }
 
         //Creating the assessment
         Assessment newAssessment = Assessment.builder()
@@ -73,8 +75,8 @@ public class GradesService {
         return teacher;
     }
 
-    private Subject getSubject(Integer subjectId){
-        Subject subject = subjectRepository.getSubjectsById(subjectId.longValue());
+    private Subject getSubject(Integer subjectId, Integer teacherId){
+        Subject subject = subjectRepository.findByIdAndTeacher_Id(subjectId.longValue(), teacherId.longValue());
 
         //we can add any validation here
 

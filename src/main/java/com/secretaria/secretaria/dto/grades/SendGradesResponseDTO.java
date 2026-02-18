@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SendGradesResponseDTO {
+    private Long id;
     private Double grade;
     private LocalDate date;
     private String observation;
