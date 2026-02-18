@@ -34,6 +34,7 @@ public class RegisterUserService {
                     .password(encryptedPassword)
                     .registrationNumber(dto.registrationNumber())
                     .role(UserRole.STUDENT)
+                    .active(true)
                     .build();
         } else {
             newUser = Teacher.builder()
@@ -42,6 +43,7 @@ public class RegisterUserService {
                     .email(dto.email())
                     .password(encryptedPassword)
                     .role(UserRole.TEACHER)
+                    .active(true)
                     .build();
         }
 
