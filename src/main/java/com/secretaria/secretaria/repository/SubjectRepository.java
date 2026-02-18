@@ -12,5 +12,8 @@ import java.util.Optional;
 public interface SubjectRepository extends JpaRepository<Subject, Long> {
     Optional<Subject> findByTeacher(Teacher teacher);
     boolean existsByTeacher(Teacher teacher);
+    Subject getSubjectsById(Long id);
+
+    boolean existsByTeacherAndIdNot(Teacher teacher, Long id);
     Subject findByIdAndTeacher_Id(Long id, Long teacherId);
 }
