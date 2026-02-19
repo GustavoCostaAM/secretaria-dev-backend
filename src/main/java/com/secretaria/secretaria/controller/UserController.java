@@ -23,8 +23,8 @@ public class UserController {
     private final DeactivateUserService deleteUserService;
     private final UpdateUserService updateUserService;
 
-    @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> registerUser(@RequestBody @Valid UserRegistrationDTO dto) {
+    @PostMapping("/registerStudent")
+    public ResponseEntity<UserResponseDTO> registerStudent(@RequestBody @Valid UserRegistrationDTO dto) {
         User user = registerUserService.execute(dto);
 
         UserResponseDTO response = new UserResponseDTO(
