@@ -44,6 +44,27 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/registerTeacher")
+    public ResponseEntity<UserResponseDTO> registerTeacher(@RequestBody @Valid UserRegistrationDTO dto) {
+        if (dto.role() != UserRole.TEACHER) {
+            throw new RuntimeException("This endpoint is only for teacher registration.");
+        }
+
+        User user = registerUserService.execute(dto);
+
+        UserResponseDTO response = new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                null,
+                (user instanceof Teacher t && t.getSubject() != null) ? t.getSubject().getName() : "No subject assigned"
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deactivate(@PathVariable Long id) {
         deleteUserService.execute(id);
