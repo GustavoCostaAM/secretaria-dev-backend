@@ -65,6 +65,27 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/registerAdmin")
+    public ResponseEntity<UserResponseDTO> registerAdmin(@RequestBody @Valid UserRegistrationDTO dto) {
+        if (dto.role() != UserRole.ADM) {
+            throw new RuntimeException("This endpoint is only for admin registration.");
+        }
+
+        User user = registerUserService.execute(dto);
+
+        UserResponseDTO response = new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                null,
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deactivate(@PathVariable Long id) {
         deleteUserService.execute(id);
