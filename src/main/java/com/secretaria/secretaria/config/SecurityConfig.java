@@ -41,8 +41,16 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/register").permitAll()
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .requestMatchers("/api/users/registerStudent").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/api/users/**").hasRole("ADM")
+                        .requestMatchers("/api/subjects/**").hasRole("ADM")
                         .requestMatchers("/api/grades/*").hasRole(UserRole.TEACHER.toString())
                         .anyRequest().authenticated()
                 )

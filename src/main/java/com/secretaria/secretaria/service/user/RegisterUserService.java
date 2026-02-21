@@ -1,10 +1,7 @@
 package com.secretaria.secretaria.service.user;
 
 import com.secretaria.secretaria.dto.user.UserRegistrationDTO;
-import com.secretaria.secretaria.model.Student;
-import com.secretaria.secretaria.model.Teacher;
-import com.secretaria.secretaria.model.User;
-import com.secretaria.secretaria.model.UserRole;
+import com.secretaria.secretaria.model.*;
 import com.secretaria.secretaria.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,14 +31,25 @@ public class RegisterUserService {
                     .password(encryptedPassword)
                     .registrationNumber(dto.registrationNumber())
                     .role(UserRole.STUDENT)
+                    .active(true)
                     .build();
-        } else {
+        } else if(dto.role() == UserRole.TEACHER) {
             newUser = Teacher.builder()
                     .name(dto.name())
                     .username(dto.username())
                     .email(dto.email())
                     .password(encryptedPassword)
                     .role(UserRole.TEACHER)
+                    .active(true)
+                    .build();
+        } else {
+            newUser = Admin.builder()
+                    .name(dto.name())
+                    .username(dto.username())
+                    .email(dto.email())
+                    .password(encryptedPassword)
+                    .role(UserRole.ADM)
+                    .active(true)
                     .build();
         }
 
