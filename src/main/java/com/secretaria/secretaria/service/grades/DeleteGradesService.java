@@ -55,6 +55,7 @@ public class DeleteGradesService {
             return false;
         }
 
+        assessmentRepository.deleteAssessmentById(assessment.getId());
         return true;
     }
 
