@@ -13,8 +13,9 @@ public class JSON<T> {
     private T value;
     private Map<String, T> map;
 
-    public void addValue(String key, T value){
+    public JSON<T> addValue(String key, T value){
         map.put(key, value);
+        return this;
     }
 
     public Map<String, T> map(){

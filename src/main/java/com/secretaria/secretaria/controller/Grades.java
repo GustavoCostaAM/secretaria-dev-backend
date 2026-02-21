@@ -1,22 +1,26 @@
 package com.secretaria.secretaria.controller;
 
+import com.secretaria.secretaria.dto.grades.GetGradesResponseDTO;
 import com.secretaria.secretaria.dto.grades.SendGradesDTO;
 import com.secretaria.secretaria.dto.grades.SendGradesResponseDTO;
 import com.secretaria.secretaria.model.Assessment;
 import com.secretaria.secretaria.model.Teacher;
+import com.secretaria.secretaria.model.User;
 import com.secretaria.secretaria.service.grades.DeleteGradesService;
+import com.secretaria.secretaria.service.grades.GetBoletimService;
 import com.secretaria.secretaria.service.grades.SendGradesService;
 import com.secretaria.secretaria.service.grades.UpdateGradesService;
 import com.secretaria.secretaria.util.JSON;
 import jakarta.persistence.PersistenceException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController()
 @RequestMapping("/api/grades")
@@ -24,11 +28,13 @@ public class Grades {
     private final SendGradesService sendgradesService;
     private final UpdateGradesService updateGradesService;
     private final DeleteGradesService deleteGradesService;
+    private final GetBoletimService getBoletimService;
 
-    public Grades(SendGradesService sendgradesService, UpdateGradesService updateGradesService, DeleteGradesService deleteGradesService) {
+    public Grades(SendGradesService sendgradesService, UpdateGradesService updateGradesService, DeleteGradesService deleteGradesService, GetBoletimService getBoletimService) {
         this.sendgradesService = sendgradesService;
         this.updateGradesService = updateGradesService;
         this.deleteGradesService = deleteGradesService;
+        this.getBoletimService = getBoletimService;
     }
 
     @PostMapping("/sendGrades")
@@ -213,5 +219,29 @@ public class Grades {
         }
 
         return ResponseEntity.status(status).body(response.map());
+    }
+
+    @GetMapping("/boletim")
+    public ResponseEntity<?> Boletim(@RequestParam(required = false) Optional<String> filtro, Authentication authentication){
+        //casting the filter to JSON object
+        Optional<JSON<String>> mappedFilter = Optional.empty();
+
+        if (filtro.isPresent()){
+            String[] keyValue = filtro.get().split("=");
+            mappedFilter = Optional.of(
+                    new JSON<String>().addValue(keyValue[0], keyValue[1])
+            );
+        }
+
+        //getting the user
+        User user = (User) authentication.getPrincipal();
+
+        try {
+             JSON<?> grades = getBoletimService.doFilter(user, mappedFilter);
+             return ResponseEntity.status(200).body(grades);
+
+        }catch (Exception e){
+            return ResponseEntity.status(400).body(null);
+        }
     }
 }
