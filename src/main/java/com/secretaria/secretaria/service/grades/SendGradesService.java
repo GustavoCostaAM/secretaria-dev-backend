@@ -26,7 +26,7 @@ public class SendGradesService {
     }
 
     public Assessment AddAssesment(SendGradesDTO gradesDTO, Teacher teacher){
-        //first we check if the student is registred
+        //first we check if the student is registered
         Student student = getUser(gradesDTO.getStudentId().longValue());
         if (student == null){
             return null;
