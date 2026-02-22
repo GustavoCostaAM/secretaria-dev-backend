@@ -34,8 +34,8 @@ public class DeleteGradesService {
         }
 
         //remember: the teacher is already validated
-        //now we have to load the teacher's subject
-        Subject subject = getSubject(gradesDTO.getSubjectId(), gradesDTO.getTeacherId());
+        //now we have to load the teacher's subject using the authenticated teacher's id
+        Subject subject = getSubject(gradesDTO.getSubjectId(), teacher.getId().intValue());
         if(subject == null){
             return false;
         }
@@ -51,10 +51,11 @@ public class DeleteGradesService {
             return false;
         }
 
-        if (gradesDTO.getTeacherId().longValue() != assessment.getSubject().getTeacher().getId()){
+        if (teacher.getId().longValue() != assessment.getSubject().getTeacher().getId().longValue()){
             return false;
         }
 
+        assessmentRepository.deleteAssessmentById(assessment.getId());
         return true;
     }
 

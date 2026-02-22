@@ -2,7 +2,6 @@ package com.secretaria.secretaria.service.grades;
 
 import com.secretaria.secretaria.dto.grades.GetGradesResponseDTO;
 import com.secretaria.secretaria.model.Assessment;
-import com.secretaria.secretaria.model.Student;
 import com.secretaria.secretaria.model.User;
 import com.secretaria.secretaria.model.UserRole;
 import com.secretaria.secretaria.repository.AssessmentRepository;
@@ -16,6 +15,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class GetBoletimService {
+    private static final double APPROVAL_THRESHOLD = 7.0;
+
     private final AssessmentRepository assessmentRepository;
 
     public GetBoletimService(AssessmentRepository assessmentRepository) {
@@ -70,17 +71,25 @@ public class GetBoletimService {
 
                     // filtro por nota mínima
                     if (mappedFilter.containsKey("minGrade")) {
-                        double min = Double.parseDouble(mappedFilter.get("minGrade"));
-                        if (a.getGrade() < min) {
-                            return false;
+                        try {
+                            double min = Double.parseDouble(mappedFilter.get("minGrade"));
+                            if (a.getGrade() < min) {
+                                return false;
+                            }
+                        } catch (NumberFormatException e) {
+                            // invalid minGrade value: ignore this filter
                         }
                     }
 
                     // filtro por nota máxima
                     if (mappedFilter.containsKey("maxGrade")) {
-                        double max = Double.parseDouble(mappedFilter.get("maxGrade"));
-                        if (a.getGrade() > max) {
-                            return false;
+                        try {
+                            double max = Double.parseDouble(mappedFilter.get("maxGrade"));
+                            if (a.getGrade() > max) {
+                                return false;
+                            }
+                        } catch (NumberFormatException e) {
+                            // invalid maxGrade value: ignore this filter
                         }
                     }
 
@@ -91,15 +100,15 @@ public class GetBoletimService {
 
         //build da resposta
         if (role == UserRole.STUDENT){
-            return buildStudentResponse(assessments);
+            return buildStudentResponse(filtred);
         }
-        return buildTeacherResponse(assessments);
+        return buildTeacherResponse(filtred);
     }
 
     private JSON<GetGradesResponseDTO> buildStudentResponse(List<Assessment> Listassessments){
         //agrupa os assessments
         Map<String, List<Assessment>> group = Listassessments.stream()
-                .collect(Collectors.groupingBy(a -> a.getSubject().getId() + "-" + a.getStudent().getId())
+                .collect(Collectors.groupingBy(a -> a.getSubject().getId() + "|" + a.getStudent().getId())
                 );
 
         JSON<GetGradesResponseDTO> response = new JSON<>();
@@ -109,13 +118,14 @@ public class GetBoletimService {
             String subject = assessments.get(0).getSubject().getName();
             double nota1 = assessments.get(0).getGrade();
             double nota2 = assessments.size() > 1 ? assessments.get(1).getGrade() : 0;
-            double average = (nota1+nota2)/2;
-            boolean approved = average > 7;
+            double average = assessments.size() > 1 ? (nota1 + nota2) / 2 : nota1;
+            boolean approved = average >= APPROVAL_THRESHOLD;
 
             GetGradesResponseDTO responseDTO = GetGradesResponseDTO.builder()
                     .disciplina(subject)
                     .nota1(nota1)
                     .nota2(nota2)
+                    .media(average)
                     .aprovado(approved)
                     .build();
 
@@ -127,7 +137,7 @@ public class GetBoletimService {
 
     private JSON<?> buildTeacherResponse(List<Assessment> Listassessments){
         Map<String, List<Assessment>> group = Listassessments.stream()
-                .collect(Collectors.groupingBy(a -> a.getStudent().getId() + "-" + a.getSubject().getId())
+                .collect(Collectors.groupingBy(a -> a.getStudent().getId() + "|" + a.getSubject().getId())
                 );
 
         JSON<JSON<GetGradesResponseDTO>> response = new JSON<>();
@@ -137,14 +147,15 @@ public class GetBoletimService {
             String subject = assessments.get(0).getSubject().getName();
             double nota1 = assessments.get(0).getGrade();
             double nota2 = assessments.size() > 1 ? assessments.get(1).getGrade() : 0;
-            double average = (nota1+nota2)/2;
-            boolean approved = average > 7;
+            double average = assessments.size() > 1 ? (nota1 + nota2) / 2 : nota1;
+            boolean approved = average >= APPROVAL_THRESHOLD;
             String studentName = assessments.get(0).getStudent().getName();
 
             GetGradesResponseDTO responseDTO = GetGradesResponseDTO.builder()
                     .disciplina(subject)
                     .nota1(nota1)
                     .nota2(nota2)
+                    .media(average)
                     .aprovado(approved)
                     .build();
 

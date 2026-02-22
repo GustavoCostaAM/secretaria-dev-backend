@@ -12,6 +12,7 @@ import com.secretaria.secretaria.repository.TeacherRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Service
 public class UpdateGradesService {
@@ -47,7 +48,7 @@ public class UpdateGradesService {
         if (!fetched.getGrade().equals(gradesDTO.getGrade())){
             fetched.setGrade(gradesDTO.getGrade());
         }
-        if (!fetched.getObservations().equals(gradesDTO.getObservations())){
+        if (!Objects.equals(fetched.getObservations(), gradesDTO.getObservations())){
             fetched.setObservations(gradesDTO.getObservations());
         }
         if (!fetched.getSubject().getId().equals(gradesDTO.getSubjectId().longValue())){

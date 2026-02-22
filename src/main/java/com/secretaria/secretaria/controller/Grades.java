@@ -1,6 +1,5 @@
 package com.secretaria.secretaria.controller;
 
-import com.secretaria.secretaria.dto.grades.GetGradesResponseDTO;
 import com.secretaria.secretaria.dto.grades.SendGradesDTO;
 import com.secretaria.secretaria.dto.grades.SendGradesResponseDTO;
 import com.secretaria.secretaria.model.Assessment;
@@ -14,12 +13,10 @@ import com.secretaria.secretaria.util.JSON;
 import jakarta.persistence.PersistenceException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController()
@@ -222,15 +219,31 @@ public class Grades {
     }
 
     @GetMapping("/boletim")
-    public ResponseEntity<?> Boletim(@RequestParam(required = false) Optional<String> filtro, Authentication authentication){
+    public ResponseEntity<?> boletim(@RequestParam(name = "filtro", required = false) Optional<String> filter, Authentication authentication){
         //casting the filter to JSON object
         Optional<JSON<String>> mappedFilter = Optional.empty();
 
-        if (filtro.isPresent()){
-            String[] keyValue = filtro.get().split("=");
-            mappedFilter = Optional.of(
-                    new JSON<String>().addValue(keyValue[0], keyValue[1])
-            );
+        if (filter.isPresent()){
+            String rawFilter = filter.get();
+            String[] filterExpressions = rawFilter.split(",");
+            JSON<String> filterJson = new JSON<>();
+            boolean hasAnyFilter = false;
+
+            for (String expression : filterExpressions) {
+                if (expression == null || expression.trim().isEmpty()) {
+                    continue;
+                }
+                String[] keyValue = expression.trim().split("=", 2);
+                if (keyValue.length != 2 || keyValue[0].trim().isEmpty() || keyValue[1].trim().isEmpty()) {
+                    continue;
+                }
+                filterJson.addValue(keyValue[0].trim(), keyValue[1].trim());
+                hasAnyFilter = true;
+            }
+
+            if (hasAnyFilter) {
+                mappedFilter = Optional.of(filterJson);
+            }
         }
 
         //getting the user
@@ -238,10 +251,12 @@ public class Grades {
 
         try {
              JSON<?> grades = getBoletimService.doFilter(user, mappedFilter);
-             return ResponseEntity.status(200).body(grades);
+             return ResponseEntity.status(200).body(grades.map());
 
         }catch (Exception e){
-            return ResponseEntity.status(400).body(null);
+            e.printStackTrace();
+            JSON<String> errorResponse = new JSON<String>().addValue("error", "FAILED TO GET BOLETIM");
+            return ResponseEntity.status(500).body(errorResponse.map());
         }
     }
 }

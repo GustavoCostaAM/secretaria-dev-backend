@@ -6,7 +6,6 @@ import com.secretaria.secretaria.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Role;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -51,7 +50,8 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/users/**").hasRole("ADM")
                         .requestMatchers("/api/subjects/**").hasRole("ADM")
-                        .requestMatchers("/api/grades/*").hasRole(UserRole.TEACHER.toString())
+                        .requestMatchers("/api/grades/boletim").hasAnyRole(UserRole.STUDENT.toString(), UserRole.TEACHER.toString())
+                        .requestMatchers("/api/grades/**").hasRole(UserRole.TEACHER.toString())
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
