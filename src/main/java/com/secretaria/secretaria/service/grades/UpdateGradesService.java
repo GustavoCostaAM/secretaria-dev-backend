@@ -12,6 +12,7 @@ import com.secretaria.secretaria.repository.TeacherRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Service
 public class UpdateGradesService {
@@ -28,20 +29,14 @@ public class UpdateGradesService {
         this.subjectRepository = subjectRepository;
     }
 
-    public Assessment UpdateAssesment(SendGradesDTO gradesDTO){
+    public Assessment UpdateAssesment(SendGradesDTO gradesDTO, Teacher teacher){
         //first we check if the student is registered
         Student student = getUser(gradesDTO.getStudentId().longValue());
         if (student == null){
             return null;
         }
 
-        //then we check if the teacher is registered
-        Teacher teacher = getTeacher(gradesDTO.getTeacherId());
-        if (teacher == null){
-            return null;
-        }
-
-        //from here, the teacher and the students are ok
+        //remember: the teacher is already validated on filterchain
         //then we check if the Assessment exists
         Assessment fetched = assessmentRepository.findAssessmentById(gradesDTO.getAssessmentId().longValue());
         if (fetched == null){
@@ -53,7 +48,7 @@ public class UpdateGradesService {
         if (!fetched.getGrade().equals(gradesDTO.getGrade())){
             fetched.setGrade(gradesDTO.getGrade());
         }
-        if (!fetched.getObservations().equals(gradesDTO.getObservations())){
+        if (!Objects.equals(fetched.getObservations(), gradesDTO.getObservations())){
             fetched.setObservations(gradesDTO.getObservations());
         }
         if (!fetched.getSubject().getId().equals(gradesDTO.getSubjectId().longValue())){

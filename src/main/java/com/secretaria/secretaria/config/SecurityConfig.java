@@ -1,6 +1,7 @@
 package com.secretaria.secretaria.config;
 
 import com.secretaria.secretaria.model.User;
+import com.secretaria.secretaria.model.UserRole;
 import com.secretaria.secretaria.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -49,6 +50,8 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/users/**").hasRole("ADM")
                         .requestMatchers("/api/subjects/**").hasRole("ADM")
+                        .requestMatchers("/api/grades/boletim").hasAnyRole(UserRole.STUDENT.toString(), UserRole.TEACHER.toString())
+                        .requestMatchers("/api/grades/**").hasRole(UserRole.TEACHER.toString())
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

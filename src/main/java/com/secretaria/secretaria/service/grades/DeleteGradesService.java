@@ -26,22 +26,16 @@ public class DeleteGradesService {
         this.subjectRepository = subjectRepository;
     }
 
-    public boolean DeleteAssesment(SendGradesDTO gradesDTO){
+    public boolean DeleteAssesment(SendGradesDTO gradesDTO, Teacher teacher){
         //first we check if the student is registered
         Student student = getUser(gradesDTO.getStudentId().longValue());
         if (student == null){
             return false;
         }
 
-        //then we check if the teacher is registered
-        Teacher teacher = getTeacher(gradesDTO.getTeacherId());
-        if (teacher == null){
-            return false;
-        }
-
-        //from here, the teacher and the students are ok
-        //now we have to load the teacher's subject
-        Subject subject = getSubject(gradesDTO.getSubjectId(), gradesDTO.getTeacherId());
+        //remember: the teacher is already validated
+        //now we have to load the teacher's subject using the authenticated teacher's id
+        Subject subject = getSubject(gradesDTO.getSubjectId(), teacher.getId().intValue());
         if(subject == null){
             return false;
         }
@@ -57,10 +51,11 @@ public class DeleteGradesService {
             return false;
         }
 
-        if (gradesDTO.getTeacherId().longValue() != assessment.getSubject().getTeacher().getId()){
+        if (teacher.getId().longValue() != assessment.getSubject().getTeacher().getId().longValue()){
             return false;
         }
 
+        assessmentRepository.deleteAssessmentById(assessment.getId());
         return true;
     }
 

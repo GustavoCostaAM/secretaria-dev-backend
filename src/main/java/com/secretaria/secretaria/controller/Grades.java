@@ -3,7 +3,10 @@ package com.secretaria.secretaria.controller;
 import com.secretaria.secretaria.dto.grades.SendGradesDTO;
 import com.secretaria.secretaria.dto.grades.SendGradesResponseDTO;
 import com.secretaria.secretaria.model.Assessment;
+import com.secretaria.secretaria.model.Teacher;
+import com.secretaria.secretaria.model.User;
 import com.secretaria.secretaria.service.grades.DeleteGradesService;
+import com.secretaria.secretaria.service.grades.GetBoletimService;
 import com.secretaria.secretaria.service.grades.SendGradesService;
 import com.secretaria.secretaria.service.grades.UpdateGradesService;
 import com.secretaria.secretaria.util.JSON;
@@ -11,10 +14,10 @@ import jakarta.persistence.PersistenceException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController()
 @RequestMapping("/api/grades")
@@ -22,23 +25,26 @@ public class Grades {
     private final SendGradesService sendgradesService;
     private final UpdateGradesService updateGradesService;
     private final DeleteGradesService deleteGradesService;
+    private final GetBoletimService getBoletimService;
 
-    public Grades(SendGradesService sendgradesService, UpdateGradesService updateGradesService, DeleteGradesService deleteGradesService) {
+    public Grades(SendGradesService sendgradesService, UpdateGradesService updateGradesService, DeleteGradesService deleteGradesService, GetBoletimService getBoletimService) {
         this.sendgradesService = sendgradesService;
         this.updateGradesService = updateGradesService;
         this.deleteGradesService = deleteGradesService;
+        this.getBoletimService = getBoletimService;
     }
 
     @PostMapping("/sendGrades")
-    public ResponseEntity<?> InsertGrades(@RequestBody SendGradesDTO gradesDTO){
+    public ResponseEntity<?> InsertGrades(@RequestBody SendGradesDTO gradesDTO, Authentication authentication){
         Assessment generated = null;
         String messageError = "";
         int status = 201;
         SendGradesResponseDTO response;
+        Teacher teacher = (Teacher) authentication.getPrincipal();
 
         //error validations
         try {
-            generated = sendgradesService.AddAssesment(gradesDTO);
+            generated = sendgradesService.AddAssesment(gradesDTO, teacher);
 
         }catch (DataIntegrityViolationException exception){
             exception.printStackTrace();
@@ -94,15 +100,16 @@ public class Grades {
     }
 
     @PostMapping("/updateGrades")
-    public ResponseEntity<?> UpdateGrades(@RequestBody SendGradesDTO gradesDTO){
+    public ResponseEntity<?> UpdateGrades(@RequestBody SendGradesDTO gradesDTO, Authentication authentication){
         Assessment updated = null;
         String messageError = "";
         int status = 201;
         SendGradesResponseDTO response;
+        Teacher teacher = (Teacher) authentication.getPrincipal();
 
         //error validations
         try {
-            updated = updateGradesService.UpdateAssesment(gradesDTO);
+            updated = updateGradesService.UpdateAssesment(gradesDTO, teacher);
 
         }catch (DataIntegrityViolationException exception){
             exception.printStackTrace();
@@ -158,14 +165,15 @@ public class Grades {
     }
 
     @PostMapping("/deleteGrades")
-    public ResponseEntity<?> deleteGrades(@RequestBody SendGradesDTO gradesDTO){
+    public ResponseEntity<?> deleteGrades(@RequestBody SendGradesDTO gradesDTO, Authentication authentication){
         boolean deleted = false;
         String messageError = "";
         int status = 200;
         JSON<String> response = new JSON<>();
+        Teacher teacher = (Teacher) authentication.getPrincipal();
 
         try {
-            deleted = deleteGradesService.DeleteAssesment(gradesDTO);
+            deleted = deleteGradesService.DeleteAssesment(gradesDTO, teacher);
         }catch (DataIntegrityViolationException exception){
             exception.printStackTrace();
             messageError = "FAILED TO DELETE DATA BY DATA INTEGRITY";
@@ -208,5 +216,47 @@ public class Grades {
         }
 
         return ResponseEntity.status(status).body(response.map());
+    }
+
+    @GetMapping("/boletim")
+    public ResponseEntity<?> boletim(@RequestParam(name = "filtro", required = false) Optional<String> filter, Authentication authentication){
+        //casting the filter to JSON object
+        Optional<JSON<String>> mappedFilter = Optional.empty();
+
+        if (filter.isPresent()){
+            String rawFilter = filter.get();
+            String[] filterExpressions = rawFilter.split(",");
+            JSON<String> filterJson = new JSON<>();
+            boolean hasAnyFilter = false;
+
+            for (String expression : filterExpressions) {
+                if (expression == null || expression.trim().isEmpty()) {
+                    continue;
+                }
+                String[] keyValue = expression.trim().split("=", 2);
+                if (keyValue.length != 2 || keyValue[0].trim().isEmpty() || keyValue[1].trim().isEmpty()) {
+                    continue;
+                }
+                filterJson.addValue(keyValue[0].trim(), keyValue[1].trim());
+                hasAnyFilter = true;
+            }
+
+            if (hasAnyFilter) {
+                mappedFilter = Optional.of(filterJson);
+            }
+        }
+
+        //getting the user
+        User user = (User) authentication.getPrincipal();
+
+        try {
+             JSON<?> grades = getBoletimService.doFilter(user, mappedFilter);
+             return ResponseEntity.status(200).body(grades.map());
+
+        }catch (Exception e){
+            e.printStackTrace();
+            JSON<String> errorResponse = new JSON<String>().addValue("error", "FAILED TO GET BOLETIM");
+            return ResponseEntity.status(500).body(errorResponse.map());
+        }
     }
 }
