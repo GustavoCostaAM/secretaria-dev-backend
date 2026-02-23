@@ -1,9 +1,6 @@
 package com.secretaria.secretaria.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,8 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder
 public class Student extends User{
-    @NotNull(message = "Registration number must not be null")
-    @Column(unique = true, nullable = false)
+    @Column(name = "registration_number", insertable = false, updatable = false)
     private Long registrationNumber;
 
     @OneToMany(mappedBy = "student")

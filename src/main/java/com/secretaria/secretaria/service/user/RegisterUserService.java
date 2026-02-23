@@ -29,7 +29,6 @@ public class RegisterUserService {
                     .username(dto.username())
                     .email(dto.email())
                     .password(encryptedPassword)
-                    .registrationNumber(dto.registrationNumber())
                     .role(UserRole.STUDENT)
                     .active(true)
                     .build();
