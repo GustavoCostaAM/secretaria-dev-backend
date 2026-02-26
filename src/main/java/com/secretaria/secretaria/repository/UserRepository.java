@@ -3,6 +3,7 @@ package com.secretaria.secretaria.repository;
 import com.secretaria.secretaria.model.Student;
 import com.secretaria.secretaria.model.Teacher;
 import com.secretaria.secretaria.model.User;
+import com.secretaria.secretaria.model.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -24,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<Teacher> findAllTeachersByActiveTrue();
 
     List<User> findAllByActiveTrue();
+
+    List<User> findAllByRoleAndActiveTrue(UserRole role);
 }
