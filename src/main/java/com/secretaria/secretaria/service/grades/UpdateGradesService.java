@@ -51,7 +51,7 @@ public class UpdateGradesService {
         if (!Objects.equals(fetched.getObservations(), gradesDTO.getObservations())){
             fetched.setObservations(gradesDTO.getObservations());
         }
-        if (!fetched.getSubject().getId().equals(gradesDTO.getSubjectId().longValue())){
+        if (!fetched.getSubject().getId().equals(teacher.getSubject().getId())){
             //fetches the new subject
             Subject newSubject = getSubject(gradesDTO.getSubjectId(), gradesDTO.getTeacherId());
             if (newSubject == null){

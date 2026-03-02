@@ -132,8 +132,12 @@ public class GetBoletimService {
             double nota2 = assessments.size() > 1 ? assessments.get(1).getGrade() : 0;
             double average = assessments.size() > 1 ? (nota1 + nota2) / 2 : nota1;
             boolean approved = average >= APPROVAL_THRESHOLD;
+            Long assessmentId1 = assessments.get(0).getId();
+            Long assessmentId2 = assessments.size() > 1 ? assessments.get(1).getId() : null;
 
             GetGradesResponseDTO responseDTO = GetGradesResponseDTO.builder()
+                    .assessmentId1(assessmentId1)
+                    .assessmentId2(assessmentId2)
                     .disciplina(subject)
                     .nota1(nota1)
                     .nota2(nota2)
@@ -162,6 +166,8 @@ public class GetBoletimService {
             double average = assessments.size() > 1 ? (nota1 + nota2) / 2 : nota1;
             boolean approved = average >= APPROVAL_THRESHOLD;
             String studentName = assessments.get(0).getStudent().getName();
+            Long assessmentId1 = assessments.get(0).getId();
+            Long assessmentId2 = assessments.size() > 1 ? assessments.get(1).getId() : null;
 
             // Monta as observações separadas por uma linha
             String observations;
@@ -187,6 +193,8 @@ public class GetBoletimService {
             observations = !obsBuilder.isEmpty() ? obsBuilder.toString() : "Nenhuma observação";
 
             GetGradesResponseDTO responseDTO = GetGradesResponseDTO.builder()
+                    .assessmentId1(assessmentId1)
+                    .assessmentId2(assessmentId2)
                     .disciplina(subject)
                     .nota1(nota1)
                     .nota2(nota2)
