@@ -1,7 +1,6 @@
 package com.secretaria.secretaria.config;
 
 import com.secretaria.secretaria.model.User;
-import com.secretaria.secretaria.model.UserRole;
 import com.secretaria.secretaria.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +14,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @RequiredArgsConstructor
@@ -39,6 +43,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/v3/api-docs/**",
@@ -48,10 +53,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/registerStudent").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers("/api/users/listByRole").hasAnyRole("TEACHER", "ADM")
                         .requestMatchers("/api/users/**").hasRole("ADM")
                         .requestMatchers("/api/subjects/**").hasRole("ADM")
-                        .requestMatchers("/api/grades/boletim").hasAnyRole(UserRole.STUDENT.toString(), UserRole.TEACHER.toString())
-                        .requestMatchers("/api/grades/**").hasRole(UserRole.TEACHER.toString())
+                        .requestMatchers("/api/grades/boletim").hasAnyRole("STUDENT", "TEACHER")
+                        .requestMatchers("/api/grades/**").hasRole("TEACHER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
@@ -66,5 +72,21 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder () {
         return  new  BCryptPasswordEncoder ();
+    }
+
+    @Bean
+    // Configurações de CORS para permitir requisições do frontend
+    // coded by github copilot
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:4200", "http://127.0.0.1:5503"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

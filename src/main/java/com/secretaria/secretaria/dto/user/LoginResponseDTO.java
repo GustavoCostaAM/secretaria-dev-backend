@@ -8,5 +8,6 @@ public record LoginResponseDTO(
         String username,
         UserRole role,
         String token,
-        boolean active
+        boolean active,
+        String subject
 ) {}

@@ -41,7 +41,7 @@ public class DeleteGradesService {
         }
 
         //now we fetch the assessment and validate the infos
-        Assessment assessment = getAssessment(gradesDTO.getAssessmentId());
+        Assessment assessment = getAssessment(gradesDTO.getAssessmentId().intValue());
 
         if (assessment == null){
             return false;

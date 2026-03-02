@@ -13,4 +13,5 @@ public class GetGradesResponseDTO {
     private double nota2;
     private double media;
     private boolean aprovado;
+    private String observations;
 }

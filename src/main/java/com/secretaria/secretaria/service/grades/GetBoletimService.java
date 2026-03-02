@@ -69,6 +69,18 @@ public class GetBoletimService {
                         }
                     }
 
+                    // filtro por ID do aluno
+                    if (mappedFilter.containsKey("studentId")) {
+                        try {
+                            Long studentId = Long.parseLong(mappedFilter.get("studentId"));
+                            if (!a.getStudent().getId().equals(studentId)) {
+                                return false;
+                            }
+                        } catch (NumberFormatException e) {
+                            // invalid studentId value: ignore this filter
+                        }
+                    }
+
                     // filtro por nota mínima
                     if (mappedFilter.containsKey("minGrade")) {
                         try {
@@ -151,12 +163,36 @@ public class GetBoletimService {
             boolean approved = average >= APPROVAL_THRESHOLD;
             String studentName = assessments.get(0).getStudent().getName();
 
+            // Monta as observações separadas por uma linha
+            String observations;
+            StringBuilder obsBuilder = new StringBuilder();
+
+            // Observação da nota1
+            String obs1 = assessments.get(0).getObservations();
+            if (obs1 != null && !obs1.isBlank()) {
+                obsBuilder.append(obs1);
+            }
+
+            // Se houver nota2, adiciona separador e observação da nota2
+            if (assessments.size() > 1) {
+                if (!obsBuilder.isEmpty()) {
+                    obsBuilder.append("\n---\n");
+                }
+                String obs2 = assessments.get(1).getObservations();
+                if (obs2 != null && !obs2.isBlank()) {
+                    obsBuilder.append(obs2);
+                }
+            }
+
+            observations = !obsBuilder.isEmpty() ? obsBuilder.toString() : "Nenhuma observação";
+
             GetGradesResponseDTO responseDTO = GetGradesResponseDTO.builder()
                     .disciplina(subject)
                     .nota1(nota1)
                     .nota2(nota2)
                     .media(average)
                     .aprovado(approved)
+                    .observations(observations)
                     .build();
 
             //valida se ja tem esse aluno na response

@@ -27,14 +27,14 @@ public class SendGradesService {
 
     public Assessment AddAssesment(SendGradesDTO gradesDTO, Teacher teacher){
         //first we check if the student is registered
-        Student student = getUser(gradesDTO.getStudentId().longValue());
+        Student student = getUser(gradesDTO.getStudentId());
         if (student == null){
             return null;
         }
 
         //remember: the teacher is already validated by the filterchain
-        //check if the subject exists
-        Subject subject = getSubject(gradesDTO.getSubjectId(), gradesDTO.getTeacherId());
+        //pegamos a disciplina do professor (ja autenticado)
+        Subject subject = teacher.getSubject();
 
         if (subject == null){
             return null;
@@ -59,21 +59,5 @@ public class SendGradesService {
         //we can add any validation here
 
         return student;
-    }
-
-    private Teacher getTeacher(Integer teacherId){
-        Teacher teacher = teacherRepository.getTeachersById(teacherId.longValue());
-
-        //we can add any validation here
-
-        return teacher;
-    }
-
-    private Subject getSubject(Integer subjectId, Integer teacherId){
-        Subject subject = subjectRepository.findByIdAndTeacher_Id(subjectId.longValue(), teacherId.longValue());
-
-        //we can add any validation here
-
-        return subject;
     }
 }
