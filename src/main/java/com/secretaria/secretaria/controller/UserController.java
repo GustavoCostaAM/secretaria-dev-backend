@@ -153,8 +153,24 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> findUserById(@PathVariable long id) {
 
-        return findUserByIdService.findUserById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<User> optionalUser = findUserByIdService.findUserById(id);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User user = optionalUser.get();
+
+        UserResponseDTO response = new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                (user instanceof Student s) ? s.getRegistrationNumber() : null,
+                (user instanceof Teacher t && t.getSubject() != null) ? t.getSubject().getName() : null
+        );
+
+        return ResponseEntity.ok(response);
     }
 }
