@@ -7,10 +7,7 @@ import com.secretaria.secretaria.model.Student;
 import com.secretaria.secretaria.model.Teacher;
 import com.secretaria.secretaria.model.User;
 import com.secretaria.secretaria.model.UserRole;
-import com.secretaria.secretaria.service.user.DeactivateUserService;
-import com.secretaria.secretaria.service.user.ListUserService;
-import com.secretaria.secretaria.service.user.RegisterUserService;
-import com.secretaria.secretaria.service.user.UpdateUserService;
+import com.secretaria.secretaria.service.user.*;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -28,6 +26,7 @@ public class UserController {
     private final DeactivateUserService deleteUserService;
     private final UpdateUserService updateUserService;
     private final ListUserService listUserService;
+    private final FindUserByIdService findUserByIdService;
 
     @PostMapping("/registerStudent")
     public ResponseEntity<UserResponseDTO> registerStudent(@RequestBody @Valid UserRegistrationDTO dto) {
@@ -149,5 +148,13 @@ public class UserController {
                 .toList();
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findUserById(@PathVariable long id) {
+
+        return findUserByIdService.findUserById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

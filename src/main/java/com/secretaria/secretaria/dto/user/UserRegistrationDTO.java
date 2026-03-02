@@ -10,6 +10,5 @@ public record UserRegistrationDTO(
         @NotBlank String username,
         @Email String email,
         @NotBlank String password,
-        @NotNull UserRole role,
-        Long subjectId
+        @NotNull UserRole role
 ) {}
