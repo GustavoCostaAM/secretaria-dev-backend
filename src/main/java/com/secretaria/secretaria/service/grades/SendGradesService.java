@@ -48,7 +48,7 @@ public class SendGradesService {
                 .grade(gradesDTO.getGrade())
                 .date(LocalDate.now())
                 .subject(subject)
-                .observations(gradesDTO.getObservations())
+                .observations(observations)
                 .student(student)
                 .build();
 
