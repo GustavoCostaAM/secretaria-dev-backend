@@ -40,6 +40,9 @@ public class SendGradesService {
             return null;
         }
 
+        //adiciona observação default caso precise
+        String observations = gradesDTO.getObservations() != null ? gradesDTO.getObservations() : "Sem observações";
+
         //Creating the assessment
         Assessment newAssessment = Assessment.builder()
                 .grade(gradesDTO.getGrade())
