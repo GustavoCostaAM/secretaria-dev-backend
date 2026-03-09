@@ -22,8 +22,8 @@ public class UpdateUserService {
         if (dto.name() != null) user.setName(dto.name());
         if (dto.email() != null) user.setEmail(dto.email());
 
-        if (user instanceof Student student && dto.registrationNumber() != null) {
-            student.setRegistrationNumber(dto.registrationNumber());
+        if (dto.username() != null) {
+            user.setUsername(dto.username());
         }
 
         return userRepository.save(user);
