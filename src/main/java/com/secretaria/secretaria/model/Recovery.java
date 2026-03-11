@@ -3,6 +3,8 @@ package com.secretaria.secretaria.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "recoveries")
 @Getter
@@ -21,4 +23,11 @@ public class Recovery {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Column(nullable = false)
+    private LocalDateTime expiration;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RecoveryStatuses status;
 }

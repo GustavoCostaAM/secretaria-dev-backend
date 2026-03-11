@@ -1,6 +1,7 @@
 package com.secretaria.secretaria.service.mail;
 
 import com.secretaria.secretaria.model.Recovery;
+import com.secretaria.secretaria.model.RecoveryStatuses;
 import com.secretaria.secretaria.model.User;
 import com.secretaria.secretaria.repository.RecoveryRepository;
 import com.secretaria.secretaria.repository.UserRepository;
@@ -15,6 +16,8 @@ import org.springframework.boot.web.server.autoconfigure.ServerProperties;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Properties;
 import java.util.Random;
 
@@ -90,6 +93,8 @@ public class SendMailService {
         Recovery recovery = Recovery.builder()
                 .code(code)
                 .user(user)
+                .status(RecoveryStatuses.PROGRESS)
+                .expiration(LocalDateTime.now().plusMinutes(5))
                 .build();
 
         recoveryRepository.save(recovery);
