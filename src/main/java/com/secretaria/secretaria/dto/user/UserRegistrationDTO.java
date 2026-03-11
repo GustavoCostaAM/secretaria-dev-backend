@@ -10,5 +10,6 @@ public record UserRegistrationDTO(
         @NotBlank String username,
         @Email String email,
         @NotBlank String password,
-        @NotNull UserRole role
+        @NotNull UserRole role,
+        Integer enrollmentCode
 ) {}
