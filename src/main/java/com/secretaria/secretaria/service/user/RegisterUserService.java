@@ -6,8 +6,10 @@ import com.secretaria.secretaria.repository.EnrollmentRepository;
 import com.secretaria.secretaria.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -26,13 +28,19 @@ public class RegisterUserService {
 
         User newUser;
         if (dto.role() == UserRole.STUDENT) {
-            Enrollment enrollment = enrollmentRepository.findByCode(dto.enrollmentCode()).orElseThrow(
-                    () -> new RuntimeException("Invalid enrollment code")
-            );
+            Enrollment enrollment = enrollmentRepository.findByCode(dto.enrollmentCode())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST,
+                            "Invalid enrollment code"
+                    ));
 
-            if(enrollment.getActiveStudent()){
-                throw new RuntimeException("Enrollment is already active.");
-            }
+
+        if (enrollment.getActiveStudent()) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Enrollment is already active"
+            );
+        }
 
             newUser = Student.builder()
                     .name(dto.name())
