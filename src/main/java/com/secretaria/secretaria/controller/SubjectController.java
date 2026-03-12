@@ -5,6 +5,7 @@ import com.secretaria.secretaria.dto.subject.SubjectResponseDTO;
 import com.secretaria.secretaria.dto.subject.SubjectUpdateDTO;
 import com.secretaria.secretaria.model.Subject;
 import com.secretaria.secretaria.service.subject.CreateSubjectService;
+import com.secretaria.secretaria.service.subject.ListSubjectService;
 import com.secretaria.secretaria.service.subject.UpdateSubjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +13,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/subjects")
 @RequiredArgsConstructor
 public class SubjectController {
     private final CreateSubjectService createSubjectService;
     private final UpdateSubjectService updateSubjectService;
+    private final ListSubjectService listSubjectService;
+
+    @GetMapping("/list")
+    public ResponseEntity<List<SubjectResponseDTO>> list() {
+        return ResponseEntity.ok(listSubjectService.execute());
+    }
 
     @PostMapping("/create")
     public ResponseEntity<SubjectResponseDTO> createSubject(@RequestBody @Valid SubjectCreationDTO dto){
