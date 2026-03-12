@@ -42,13 +42,15 @@ public class RegisterUserService {
             );
         }
 
+            System.out.println((long) enrollment.getCode());
+
             newUser = Student.builder()
                     .name(dto.name())
                     .username(dto.username())
                     .email(dto.email())
                     .password(encryptedPassword)
                     .role(UserRole.STUDENT)
-                    .registrationNumber((long) dto.enrollmentCode())
+                    .registrationNumber(enrollment.getCode().longValue())
                     .active(true)
                     .build();
 
