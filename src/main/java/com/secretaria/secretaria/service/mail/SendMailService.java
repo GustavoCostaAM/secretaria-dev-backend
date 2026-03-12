@@ -11,6 +11,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.autoconfigure.ServerProperties;
 import org.springframework.scheduling.annotation.Async;
@@ -22,8 +23,7 @@ import java.util.Properties;
 import java.util.Random;
 
 @Service
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class SendMailService {
     //load the mail and password from the properties file
     @Value("${spring.mail.sender}")
@@ -32,9 +32,12 @@ public class SendMailService {
     @Value("${spring.mail.sender.password}")
     private String hostPassword;
 
+    @Value("${frontend.url}")
+    private String frontendUrl;
+
     //load the repositories
-    private UserRepository userRepository;
-    private RecoveryRepository recoveryRepository;
+    private final UserRepository userRepository;
+    private final RecoveryRepository recoveryRepository;
 
     //send a email to the user with a url to recover the password
     //the url should contain a code that will be used to identify the user and the recover request
@@ -44,12 +47,7 @@ public class SendMailService {
         //generate a random code and send it to the user
         String code = generateCode();
 
-        String baseUrl = request.getScheme() + "://" +
-                request.getServerName() + ":" +
-                request.getServerPort();
-
-
-        String redirectUrl = baseUrl + "/recover/" + code;
+        String redirectUrl = frontendUrl + "HTML/recuperacao-senha.html?code=" + code;
 
         //format a new message
         Properties prop = new Properties();

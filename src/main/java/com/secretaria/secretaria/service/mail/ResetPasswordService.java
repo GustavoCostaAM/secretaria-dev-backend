@@ -6,13 +6,9 @@ import com.secretaria.secretaria.model.User;
 import com.secretaria.secretaria.repository.RecoveryRepository;
 import com.secretaria.secretaria.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.NoSuchElementException;
 
 @AllArgsConstructor
 @Service
@@ -25,23 +21,24 @@ public class ResetPasswordService {
         //validate if the user have a recovery request is completed
         //we treat as a list beacuse the user can ask more than one request
         //so we dont validate just one, since we are going to set other status on it
-        List<Recovery> recoveries;
+        Recovery recovery;
         try {
-            recoveries = recoveryRepository.findAllByStatusAndUser_Email(RecoveryStatuses.COMPLETED,
-                    userCode);
+            recovery = recoveryRepository.getRecoveryByCode(userCode);
         } catch (DataAccessException e) {
             e.printStackTrace();
             return false;
         }
 
-        //fetch the user by email
-        User user;
-        try {
-            user = recoveries.getFirst().getUser();
-        } catch (NoSuchElementException e) {
-            e.printStackTrace();
+        if (recovery == null) {
             return false;
         }
+
+        if (!RecoveryStatuses.COMPLETED.equals(recovery.getStatus())) {
+            return false;
+        }
+
+        //fetch the user by email
+        User user = recovery.getUser();
 
         if (user == null){
             return false;
@@ -60,10 +57,8 @@ public class ResetPasswordService {
 
         //after we update the password, we need to change status of all the recovery requests of the user
         try {
-            recoveries.forEach(recovery -> {
-                recovery.setStatus(RecoveryStatuses.USED);
-                recoveryRepository.save(recovery);
-            });
+            recovery.setStatus(RecoveryStatuses.USED);
+            recoveryRepository.save(recovery);
         } catch (DataAccessException e) {
             e.printStackTrace();
             return false;

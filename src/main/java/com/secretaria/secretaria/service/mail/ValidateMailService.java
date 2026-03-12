@@ -13,10 +13,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
-@NoArgsConstructor
 @AllArgsConstructor
 public class ValidateMailService {
-    private RecoveryRepository recoveryRepository;
+    private final RecoveryRepository recoveryRepository;
 
     public boolean ValidateCode(String code){
         //check if the recovery request exists in the database
