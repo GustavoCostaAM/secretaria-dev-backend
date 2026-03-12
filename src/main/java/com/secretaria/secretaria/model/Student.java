@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder
 public class Student extends User{
-    @Column(name = "registration_number", insertable = false, updatable = false)
+    @Column(name = "registration_number")
     private Long registrationNumber;
 
     @OneToMany(mappedBy = "student")
