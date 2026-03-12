@@ -135,6 +135,18 @@ public class GetBoletimService {
             Long assessmentId1 = assessments.get(0).getId();
             Long assessmentId2 = assessments.size() > 1 ? assessments.get(1).getId() : null;
 
+            // Monta as observacoes separadas por uma linha
+            String observations;
+            StringBuilder obsBuilder = new StringBuilder();
+
+            // Observacao da nota1
+            String obs1 = assessments.get(0).getObservations();
+            if (obs1 != null && !obs1.isBlank()) {
+                obsBuilder.append(obs1);
+            }
+
+            observations = !obsBuilder.isEmpty() ? obsBuilder.toString() : "Nenhuma observacao";
+
             GetGradesResponseDTO responseDTO = GetGradesResponseDTO.builder()
                     .assessmentId1(assessmentId1)
                     .assessmentId2(assessmentId2)
@@ -143,6 +155,7 @@ public class GetBoletimService {
                     .nota2(nota2)
                     .media(average)
                     .aprovado(approved)
+                    .observations(observations)
                     .build();
 
             response.addValue(subject, responseDTO);
@@ -182,7 +195,7 @@ public class GetBoletimService {
             // Se houver nota2, adiciona separador e observação da nota2
             if (assessments.size() > 1) {
                 if (!obsBuilder.isEmpty()) {
-                    obsBuilder.append("\n---\n");
+                    obsBuilder.append(" - ");
                 }
                 String obs2 = assessments.get(1).getObservations();
                 if (obs2 != null && !obs2.isBlank()) {
