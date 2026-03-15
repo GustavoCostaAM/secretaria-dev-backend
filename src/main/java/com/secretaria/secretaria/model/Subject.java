@@ -22,7 +22,7 @@ public class Subject {
     @Column(nullable = false)
     private String name;
 
-    @OneToOne(optional = false)
+    @OneToOne
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
 

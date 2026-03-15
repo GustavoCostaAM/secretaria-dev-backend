@@ -3,6 +3,7 @@ package com.secretaria.secretaria.service.user;
 import com.secretaria.secretaria.dto.user.UserRegistrationDTO;
 import com.secretaria.secretaria.model.*;
 import com.secretaria.secretaria.repository.EnrollmentRepository;
+import com.secretaria.secretaria.repository.SubjectRepository;
 import com.secretaria.secretaria.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -11,10 +12,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class RegisterUserService {
     private final UserRepository userRepository;
+    private final SubjectRepository subjectRepository;
     public final EnrollmentRepository enrollmentRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -65,6 +69,19 @@ public class RegisterUserService {
                     .role(UserRole.TEACHER)
                     .active(true)
                     .build();
+
+            Optional<Subject> subjectOpt = subjectRepository.findById(dto.subjectId());
+            System.out.println(dto.subjectId());
+            if (subjectOpt.isEmpty()) {
+                throw new RuntimeException("Subject not found");
+            }
+
+            Subject subject = subjectOpt.get();
+
+            subject.setTeacher((Teacher) newUser);
+
+            subjectRepository.save(subject);
+
         } else {
             newUser = Admin.builder()
                     .name(dto.name())
