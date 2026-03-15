@@ -186,21 +186,10 @@ public class GetBoletimService {
             String observations;
             StringBuilder obsBuilder = new StringBuilder();
 
-            // Observação da nota1
+            // Observação do aluno
             String obs1 = assessments.get(0).getObservations();
             if (obs1 != null && !obs1.isBlank()) {
                 obsBuilder.append(obs1);
-            }
-
-            // Se houver nota2, adiciona separador e observação da nota2
-            if (assessments.size() > 1) {
-                if (!obsBuilder.isEmpty()) {
-                    obsBuilder.append(" - ");
-                }
-                String obs2 = assessments.get(1).getObservations();
-                if (obs2 != null && !obs2.isBlank()) {
-                    obsBuilder.append(obs2);
-                }
             }
 
             observations = !obsBuilder.isEmpty() ? obsBuilder.toString() : "Nenhuma observação";
