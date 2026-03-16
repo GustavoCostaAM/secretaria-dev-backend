@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Integer>{
     Optional<Enrollment> findByCode(int code);
+    Enrollment findTopByOrderByCodeDesc();
 }

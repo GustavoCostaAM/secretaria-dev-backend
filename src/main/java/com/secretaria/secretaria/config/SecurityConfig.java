@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/grades/boletim").hasAnyRole("STUDENT", "TEACHER")
                         .requestMatchers("/api/grades/**").hasRole("TEACHER")
                         .requestMatchers("/api/redefine/**").permitAll()
+                        .requestMatchers("/api/enrollments").hasRole("ADM")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
